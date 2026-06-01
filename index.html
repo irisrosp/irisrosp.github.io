@@ -34,12 +34,12 @@
             justify-content: center;
         }
         .slides-container {
-            width: 95%;
-            max-width: 1600px;
-            height: 90%;
+            width: 90%;
+            max-width: 1300px;
+            height: 90vh;
             background: #1e1b1a;
             border-radius: 2rem;
-            padding: 2rem 2.5rem;
+            padding: 1rem 1.5rem;
             display: flex;
             flex-direction: column;
             border: 1px solid #7a5a46;
@@ -48,54 +48,47 @@
         }
         .slide {
             display: none;
-            flex: 1;
             flex-direction: column;
-            gap: 1.8rem;
+            height: 100%;
+            justify-content: space-between;
+            gap: 0.8rem;
         }
         .slide.activo {
             display: flex;
         }
-        /* TEXTOS ENORMES usando vw */
+        /* TEXTOS GRANDES */
         .texto-grande {
-            font-size: 2.5vw;
-            line-height: 1.3;
+            font-size: 2rem;
+            line-height: 1.2;
             text-align: center;
             font-weight: 500;
+            margin: 0.2rem 0;
         }
         .texto-mediano {
-            font-size: 1.8vw;
-            line-height: 1.4;
+            font-size: 1.5rem;
+            line-height: 1.3;
             text-align: center;
         }
         .texto-chico {
-            font-size: 1.2vw;
+            font-size: 1rem;
             color: #bcb2a6;
             text-align: center;
-            margin-top: 0.5rem;
+            margin-top: 0.2rem;
         }
-        @media (max-width: 1200px) {
-            .texto-grande { font-size: 2rem; }
-            .texto-mediano { font-size: 1.5rem; }
-            .texto-chico { font-size: 1rem; }
-        }
-        @media (max-width: 700px) {
-            .texto-grande { font-size: 1.5rem; }
-            .texto-mediano { font-size: 1.2rem; }
-        }
-        /* BOTONES GRANDES */
         .botonera {
             display: flex;
-            gap: 1.5rem;
+            gap: 1rem;
             justify-content: center;
             flex-wrap: wrap;
+            margin: 0.5rem 0;
         }
         button {
             background: #2c2622;
             border: none;
             color: white;
-            padding: 0.8rem 1.8rem;
+            padding: 0.6rem 1.2rem;
             font-family: inherit;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             border-radius: 3rem;
             cursor: pointer;
             border: 1px solid #8b6b55;
@@ -108,55 +101,56 @@
         .btn-continuar {
             background: #7f5a48;
             align-self: flex-end;
-            margin-top: 0.5rem;
-            padding: 1rem 2.5rem;
-            font-size: 1.6rem;
+            margin-top: 0.2rem;
+            padding: 0.8rem 2rem;
+            font-size: 1.3rem;
             font-weight: bold;
         }
-        /* Zona de juego */
+        /* Zona de juego (fondo + área de drop) - ALTURA CONTROLADA */
         .zona-juego {
             position: relative;
             background: #2a2522;
             border-radius: 1.5rem;
-            flex: 1;
-            min-height: 500px;
+            height: 55vh;
+            min-height: 350px;
+            max-height: 500px;
             overflow: hidden;
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
             background-color: #1a1614;
-            margin: 0.5rem 0;
+            margin: 0.2rem 0;
         }
         .fondo-viste { background-image: url('visteametifoto.jpg'); }
         .fondo-poncara { background-image: url('poncaraameti.jpg'); }
 
-        /* INVENTARIO - caja lateral derecha, visible */
+        /* CAJA INVENTARIO (lateral derecha) */
         .inventario {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 180px;
+            top: 15px;
+            right: 15px;
+            width: 130px;
             background: rgba(0,0,0,0.85);
             backdrop-filter: blur(8px);
             border-radius: 1rem;
-            padding: 15px 10px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            border: 2px solid #dbbf9b;
+            gap: 10px;
+            border: 2px solid #c0a080;
             z-index: 250;
-            box-shadow: 0 0 20px rgba(0,0,0,0.6);
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
             pointer-events: auto;
         }
         .inventario p {
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             text-align: center;
             color: #ffddbb;
             margin-bottom: 5px;
             font-weight: bold;
         }
         .item-inventario {
-            width: 120px;
+            width: 90px;
             margin: 0 auto;
             cursor: grab;
             filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
@@ -171,7 +165,7 @@
             border-radius: 12px;
             pointer-events: none;
         }
-        /* Copias arrastrables */
+        /* Elemento arrastrable copia */
         .item-drag {
             position: absolute;
             cursor: grab;
@@ -192,25 +186,26 @@
             position: absolute;
             bottom: 0;
             right: 0;
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             background: #ffcc88;
             border-radius: 3px;
             cursor: nw-resize;
             z-index: 350;
         }
-        /* Zona pastillas */
+        /* Zona pastillas slide6 */
         .zona-pastillas {
             position: relative;
             background: #1f1b18;
             border-radius: 1.5rem;
-            flex: 1;
-            min-height: 450px;
+            height: 55vh;
+            min-height: 350px;
+            max-height: 500px;
             overflow: hidden;
-            margin: 0.5rem 0;
+            margin: 0.2rem 0;
         }
         .pastilla-base {
-            width: 200px;
+            width: 150px;
             cursor: pointer;
             position: absolute;
             top: 20px;
@@ -223,7 +218,7 @@
         }
         .pastilla-clon {
             position: absolute;
-            width: 140px;
+            width: 100px;
             cursor: grab;
             z-index: 100;
         }
@@ -234,7 +229,7 @@
             padding: 2rem;
             border-radius: 2rem;
             text-align: center;
-            max-width: 1000px;
+            max-width: 900px;
             width: 90%;
             margin: 2rem auto;
         }
@@ -243,13 +238,13 @@
         }
         .lista-obras {
             list-style: none;
-            margin: 2rem 0;
-        }
-        .lista-obras li {
             margin: 1.5rem 0;
         }
+        .lista-obras li {
+            margin: 1.2rem 0;
+        }
         .lista-obras a {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             color: #dbbf9b;
             text-decoration: none;
             border-bottom: 2px solid #7a5a46;
@@ -257,23 +252,27 @@
         .volver-inicio {
             background: #7f5a48;
             display: inline-block;
-            margin-top: 1.5rem;
-            padding: 1rem 2rem;
+            margin-top: 1rem;
+            padding: 0.8rem 1.8rem;
             border-radius: 3rem;
             color: white;
             text-decoration: none;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
         }
         hr {
             border-color: #3a2e28;
             margin: 1rem 0;
         }
-        @media (max-width: 800px) {
-            .inventario { width: 130px; right: 10px; top: 10px; }
-            .item-inventario { width: 90px; }
-            .pastilla-base { width: 140px; }
-            .pastilla-clon { width: 100px; }
-            .btn-continuar { font-size: 1.2rem; padding: 0.8rem 1.5rem; }
+        @media (max-width: 700px) {
+            .texto-grande { font-size: 1.3rem; }
+            .texto-mediano { font-size: 1.1rem; }
+            button { font-size: 0.9rem; padding: 0.5rem 1rem; }
+            .btn-continuar { font-size: 1rem; padding: 0.6rem 1.2rem; }
+            .zona-juego, .zona-pastillas { height: 45vh; min-height: 280px; }
+            .inventario { width: 100px; right: 10px; top: 10px; }
+            .item-inventario { width: 70px; }
+            .pastilla-base { width: 110px; }
+            .pastilla-clon { width: 80px; }
         }
     </style>
 </head>
@@ -306,7 +305,7 @@
                 <button id="btnMascota2">¡Jojo! Ahora somos dos peleles juntos, tú eres otra marioneta, ¿verdad?</button>
             </div>
             <div style="background:#000; border-radius:1rem; overflow:hidden;">
-                <video controls autoplay muted playsinline width="100%" style="max-height: 50vh;">
+                <video controls autoplay muted playsinline width="100%" style="max-height: 40vh;">
                     <source src="videoarte1presentacionmeti.mp4" type="video/mp4">
                 </video>
             </div>
@@ -345,7 +344,7 @@
 </div>
 
 <div id="indiceObras" class="indice">
-    <h1 style="font-size:2.5rem;">TEAtraviesa · Obras</h1>
+    <h1 style="font-size:2rem;">TEAtraviesa · Obras</h1>
     <ul class="lista-obras">
         <li><a href="cepillarse.html" target="_blank">1) Cepillarselosdientesproject</a></li>
         <li><a href="cleanfisting.html" target="_blank">2) Cleanfisting</a></li>
@@ -390,7 +389,7 @@
     document.getElementById('btnMascota2')?.addEventListener('click', (e) => e.target.style.display = 'none');
 
     // --------------------------------------------------------------
-    // 2. Funciones para copias arrastrables y redimensionables
+    // 2. Funciones para elementos arrastrables (copias)
     // --------------------------------------------------------------
     function hacerArrastrable(elemento, contenedor) {
         let isDragging = false;
@@ -462,12 +461,13 @@
         });
     }
 
+    // Crear una copia arrastrable a partir de un ítem del inventario
     function crearCopiaArrastrable(src, x, y, contenedor) {
         const div = document.createElement('div');
         div.className = 'item-drag';
         div.style.left = x + 'px';
         div.style.top = y + 'px';
-        div.style.width = '120px';
+        div.style.width = '90px';
         const img = document.createElement('img');
         img.src = src;
         div.appendChild(img);
@@ -496,14 +496,13 @@
     let zonaRopaLista = false;
     let zonaCarasLista = false;
 
-    function inicializarInventario(zonaId, items, textoAyuda = "🧸 arrastra para vestir") {
+    function inicializarInventario(zonaId, items, textoAyuda = "Arrastra para vestir") {
         const zona = document.getElementById(zonaId);
         if (!zona) return;
-        // Evitar duplicados
-        if (zona.querySelector('.inventario')) return;
+        // Crear caja inventario
         const inventario = document.createElement('div');
         inventario.className = 'inventario';
-        inventario.innerHTML = `<p>${textoAyuda}</p>`;
+        inventario.innerHTML = `<p>✨ ${textoAyuda} ✨</p>`;
         zona.appendChild(inventario);
 
         items.forEach(src => {
@@ -514,27 +513,26 @@
             itemDiv.appendChild(img);
             inventario.appendChild(itemDiv);
 
+            // Al hacer clic y arrastrar desde el inventario, creamos una copia
             itemDiv.addEventListener('mousedown', (e) => {
                 e.preventDefault();
                 const startX = e.clientX;
                 const startY = e.clientY;
                 const zonaRect = zona.getBoundingClientRect();
-                let cloneX = startX - zonaRect.left - 60;
-                let cloneY = startY - zonaRect.top - 60;
-                cloneX = Math.min(Math.max(cloneX, 0), zonaRect.width - 120);
-                cloneY = Math.min(Math.max(cloneY, 0), zonaRect.height - 120);
+                let cloneX = startX - zonaRect.left - 45;
+                let cloneY = startY - zonaRect.top - 45;
+                cloneX = Math.min(Math.max(cloneX, 0), zonaRect.width - 90);
+                cloneY = Math.min(Math.max(cloneY, 0), zonaRect.height - 90);
                 const clon = crearCopiaArrastrable(src, cloneX, cloneY, zona);
-                // Hacer que la copia siga al ratón mientras se arrastra (feedback)
+                // Seguimiento del ratón para arrastrar la copia inmediatamente
                 let mouseMoveHandler, mouseUpHandler;
                 let isDraggingClone = true;
-                function onMouseMove(me) {
+                function onMouseMove(e) {
                     if (!isDraggingClone) return;
-                    let newX = me.clientX - zonaRect.left - 60;
-                    let newY = me.clientY - zonaRect.top - 60;
-                    newX = Math.min(Math.max(newX, 0), zonaRect.width - 120);
-                    newY = Math.min(Math.max(newY, 0), zonaRect.height - 120);
-                    clon.style.left = newX + 'px';
-                    clon.style.top = newY + 'px';
+                    const newLeft = e.clientX - zonaRect.left - 45;
+                    const newTop = e.clientY - zonaRect.top - 45;
+                    clon.style.left = Math.min(Math.max(newLeft, 0), zonaRect.width - 90) + 'px';
+                    clon.style.top = Math.min(Math.max(newTop, 0), zonaRect.height - 90) + 'px';
                 }
                 function onMouseUp() {
                     isDraggingClone = false;
@@ -547,25 +545,26 @@
         });
     }
 
+    // Observador para inicializar cuando la slide se active
     const observerJuegos = new MutationObserver(() => {
         const slide4 = document.getElementById('slide4');
         const slide5 = document.getElementById('slide5');
         if (slide4.classList.contains('activo') && !zonaRopaLista) {
-            inicializarInventario('zonaRopa', ropas, "👗 arrastra para vestir a Meti");
+            inicializarInventario('zonaRopa', ropas, "🧸 viste a Meti");
             zonaRopaLista = true;
         }
         if (slide5.classList.contains('activo') && !zonaCarasLista) {
-            inicializarInventario('zonaCaras', caretas, "🎭 arrastra la careta");
+            inicializarInventario('zonaCaras', caretas, "🎭 elige una careta");
             zonaCarasLista = true;
         }
     });
     observerJuegos.observe(document.querySelector('.slides-container'), { attributes: true, subtree: true, attributeFilter: ['class'] });
     if (document.getElementById('slide4').classList.contains('activo') && !zonaRopaLista) {
-        inicializarInventario('zonaRopa', ropas, "👗 arrastra para vestir a Meti");
+        inicializarInventario('zonaRopa', ropas, "🧸 viste a Meti");
         zonaRopaLista = true;
     }
     if (document.getElementById('slide5').classList.contains('activo') && !zonaCarasLista) {
-        inicializarInventario('zonaCaras', caretas, "🎭 arrastra la careta");
+        inicializarInventario('zonaCaras', caretas, "🎭 elige una careta");
         zonaCarasLista = true;
     }
 
@@ -648,13 +647,13 @@
         clon.id = 'clon_' + (contadorClones++);
         const rectBase = pastillaBase.getBoundingClientRect();
         const rectZona = zonaPastis.getBoundingClientRect();
-        let left = (rectBase.left - rectZona.left) + 100;
-        let top = (rectBase.top - rectZona.top) + 100;
-        left = Math.min(Math.max(left, 10), rectZona.width - 150);
-        top = Math.min(Math.max(top, 10), rectZona.height - 150);
+        let left = (rectBase.left - rectZona.left) + 70;
+        let top = (rectBase.top - rectZona.top) + 70;
+        left = Math.min(Math.max(left, 10), rectZona.width - 110);
+        top = Math.min(Math.max(top, 10), rectZona.height - 110);
         clon.style.left = left + 'px';
         clon.style.top = top + 'px';
-        clon.style.width = '140px';
+        clon.style.width = '100px';
         zonaPastis.appendChild(clon);
         hacerClonArrastrableYRedimensionable(clon, zonaPastis);
     });
@@ -688,4 +687,4 @@
     modal.addEventListener('click', (e) => { if (e.target === modal) e.preventDefault(); });
 </script>
 </body>
-</html> 
+</html>
