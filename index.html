@@ -106,7 +106,7 @@
             font-size: 1.3rem;
             font-weight: bold;
         }
-        /* Zona de juego (fondo + área de drop) - ALTURA CONTROLADA */
+        /* Zona de juego */
         .zona-juego {
             position: relative;
             background: #2a2522;
@@ -124,12 +124,14 @@
         .fondo-viste { background-image: url('visteametifoto.jpg'); }
         .fondo-poncara { background-image: url('poncaraameti.jpg'); }
 
-        /* CAJA INVENTARIO (lateral derecha) */
+        /* CAJA INVENTARIO CON SCROLL */
         .inventario {
             position: absolute;
             top: 15px;
             right: 15px;
             width: 130px;
+            max-height: 85%;
+            overflow-y: auto;
             background: rgba(0,0,0,0.85);
             backdrop-filter: blur(8px);
             border-radius: 1rem;
@@ -141,13 +143,18 @@
             z-index: 250;
             box-shadow: 0 0 15px rgba(0,0,0,0.5);
             pointer-events: auto;
+            scrollbar-width: thin;
         }
-        .inventario p {
-            font-size: 0.9rem;
-            text-align: center;
-            color: #ffddbb;
-            margin-bottom: 5px;
-            font-weight: bold;
+        .inventario::-webkit-scrollbar {
+            width: 6px;
+        }
+        .inventario::-webkit-scrollbar-track {
+            background: #3a2c26;
+            border-radius: 4px;
+        }
+        .inventario::-webkit-scrollbar-thumb {
+            background: #c0a080;
+            border-radius: 4px;
         }
         .item-inventario {
             width: 90px;
@@ -269,7 +276,7 @@
             button { font-size: 0.9rem; padding: 0.5rem 1rem; }
             .btn-continuar { font-size: 1rem; padding: 0.6rem 1.2rem; }
             .zona-juego, .zona-pastillas { height: 45vh; min-height: 280px; }
-            .inventario { width: 100px; right: 10px; top: 10px; }
+            .inventario { width: 100px; right: 10px; top: 10px; max-height: 80%; }
             .item-inventario { width: 70px; }
             .pastilla-base { width: 110px; }
             .pastilla-clon { width: 80px; }
@@ -321,7 +328,7 @@
 
         <!-- SLIDE 5: JUEGO DE VESTIR (caras) -->
         <div id="slide5" class="slide">
-            <div class="texto-grande">“Perfecto, ahora ponle guapite, ¿qué rostro tiene? Recuerda mirarle a los ojos.”</div>
+            <div class="texto-grande">“Perfecto, ahora ponle guapito, ¿qué rostro tiene? Recuerda mirarle a los ojos.”</div>
             <div id="zonaCaras" class="zona-juego fondo-poncara"></div>
             <button class="btn-continuar" data-siguiente="slide6">Continuar</button>
         </div>
@@ -478,7 +485,7 @@
     }
 
     // --------------------------------------------------------------
-    // 3. Inicializar inventario para slide4 y slide5
+    // 3. Inicializar inventario para slide4 y slide5 (sin texto, solo iconos)
     // --------------------------------------------------------------
     const ropas = [
         'delantalvisteameti.png',
@@ -496,13 +503,13 @@
     let zonaRopaLista = false;
     let zonaCarasLista = false;
 
-    function inicializarInventario(zonaId, items, textoAyuda = "Arrastra para vestir") {
+    function inicializarInventario(zonaId, items) {
         const zona = document.getElementById(zonaId);
         if (!zona) return;
-        // Crear caja inventario
+        // Crear caja inventario SIN TEXTO
         const inventario = document.createElement('div');
         inventario.className = 'inventario';
-        inventario.innerHTML = `<p>✨ ${textoAyuda} ✨</p>`;
+        // No añadimos ningún párrafo, solo los items
         zona.appendChild(inventario);
 
         items.forEach(src => {
@@ -550,21 +557,21 @@
         const slide4 = document.getElementById('slide4');
         const slide5 = document.getElementById('slide5');
         if (slide4.classList.contains('activo') && !zonaRopaLista) {
-            inicializarInventario('zonaRopa', ropas, "🧸 viste a Meti");
+            inicializarInventario('zonaRopa', ropas);
             zonaRopaLista = true;
         }
         if (slide5.classList.contains('activo') && !zonaCarasLista) {
-            inicializarInventario('zonaCaras', caretas, "🎭 elige una careta");
+            inicializarInventario('zonaCaras', caretas);
             zonaCarasLista = true;
         }
     });
     observerJuegos.observe(document.querySelector('.slides-container'), { attributes: true, subtree: true, attributeFilter: ['class'] });
     if (document.getElementById('slide4').classList.contains('activo') && !zonaRopaLista) {
-        inicializarInventario('zonaRopa', ropas, "🧸 viste a Meti");
+        inicializarInventario('zonaRopa', ropas);
         zonaRopaLista = true;
     }
     if (document.getElementById('slide5').classList.contains('activo') && !zonaCarasLista) {
-        inicializarInventario('zonaCaras', caretas, "🎭 elige una careta");
+        inicializarInventario('zonaCaras', caretas);
         zonaCarasLista = true;
     }
 
@@ -687,4 +694,4 @@
     modal.addEventListener('click', (e) => { if (e.target === modal) e.preventDefault(); });
 </script>
 </body>
-</html>
+</html> 
