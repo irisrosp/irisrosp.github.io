@@ -266,6 +266,38 @@
             text-decoration: none;
             font-size: 1.2rem;
         }
+        /* Sección de descarga del PDF */
+        .descarga-pdf {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #1f1b18;
+            border-radius: 1.5rem;
+            border: 1px solid #7a5a46;
+            text-align: center;
+        }
+        .descarga-pdf p {
+            font-size: 1.1rem;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+            color: #e2dcd5;
+        }
+        .btn-descarga {
+            display: inline-block;
+            background: #7f5a48;
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 3rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-descarga:hover {
+            background: #9b7058;
+            transform: scale(1.02);
+        }
         hr {
             border-color: #3a2e28;
             margin: 1rem 0;
@@ -280,6 +312,8 @@
             .item-inventario { width: 70px; }
             .pastilla-base { width: 110px; }
             .pastilla-clon { width: 80px; }
+            .descarga-pdf p { font-size: 0.95rem; }
+            .btn-descarga { font-size: 1rem; padding: 0.6rem 1.2rem; }
         }
     </style>
 </head>
@@ -328,7 +362,7 @@
 
         <!-- SLIDE 5: JUEGO DE VESTIR (caras) -->
         <div id="slide5" class="slide">
-            <div class="texto-grande">Perfecto, ahora ponle guapite, ¿qué rostro tiene? Recuerda mirarle a los ojos.”</div>
+            <div class="texto-grande">Perfecto, ahora ponle guapite, ¿qué rostro tiene? Recuerda mirarle a los ojos.</div>
             <div id="zonaCaras" class="zona-juego fondo-poncara"></div>
             <button class="btn-continuar" data-siguiente="slide6">Continuar</button>
         </div>
@@ -361,6 +395,13 @@
     <a href="#" id="reiniciarExperiencia" class="volver-inicio">⟳ Volver al inicio interactivo</a>
     <hr>
     <p>Proyecto "TEAtraviesa" creado por IRIS ROS PÁRAMO como propuesta de arte.net complementario a su Trabajo Fin de Máster homónimo de exploración teórica anticapacitista.</p>
+
+    <!-- NUEVA SECCIÓN: DESCARGA DEL TFM (con el nombre correcto del PDF) -->
+    <div class="descarga-pdf">
+        <p>📘 ¿Te ha interesado este proyecto? ¡Descubre el porqué de su creación! Accede al cuerpo teórico e infórmate sobre las <em>disability aesthetics</em>, <em>art brut</em> y violencias capacitistas con su lectura, además de profundizar en las obras aquí expuestas.</p>
+        <a href="ROS_PÁRAMO_IRIS_TFM_ESTÉTICACONTEMPORÁNEA2026MAYO.pdf" class="btn-descarga" id="botonDescargaPDF">📄 Iniciar descarga del PDF completo (TFM Iris Ros Páramo)</a>
+    </div>
+    <!-- FIN SECCIÓN DESCARGA -->
 </div>
 
 <script>
