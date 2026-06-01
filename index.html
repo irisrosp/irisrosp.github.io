@@ -20,7 +20,6 @@
             align-items: center;
             justify-content: center;
         }
-        /* Modal obligatorio */
         .modal {
             position: fixed;
             top: 0;
@@ -74,7 +73,6 @@
             text-align: center;
             margin-top: 0.5rem;
         }
-        /* BOTONES GRANDES */
         .botonera {
             display: flex;
             gap: 1.5rem;
@@ -105,8 +103,8 @@
             font-size: 1.4rem;
             font-weight: bold;
         }
-        /* ZONA DE VESTIR (juegos flash) */
-        .zona-vestir {
+        /* Zona de juego (fondo + área de drop) */
+        .zona-juego {
             position: relative;
             background: #2a2522;
             border-radius: 1.5rem;
@@ -122,39 +120,53 @@
         .fondo-viste { background-image: url('visteametifoto.jpg'); }
         .fondo-poncara { background-image: url('poncaraameti.jpg'); }
 
-        /* CAJA LATERAL para los PNG (como una paleta) */
-        .caja-paleta {
+        /* CAJA INVENTARIO (lateral derecha, visible) */
+        .inventario {
             position: absolute;
-            right: 10px;
-            top: 10px;
+            top: 20px;
+            right: 20px;
             width: 140px;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(4px);
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
             border-radius: 1rem;
-            padding: 10px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
             gap: 12px;
-            border: 1px solid #c0a080;
-            z-index: 300;
-            pointer-events: none; /* para que los clics pasen a los items */
+            border: 2px solid #c0a080;
+            z-index: 250;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            pointer-events: auto; /* importante: la caja recibe eventos */
         }
-        .caja-paleta .item-drag {
-            position: relative !important;
-            width: 100px !important;
+        .inventario p {
+            font-size: 0.9rem;
+            text-align: center;
+            color: #ffddbb;
+            margin-bottom: 5px;
+        }
+        /* Cada ítem del inventario */
+        .item-inventario {
+            width: 100px;
             margin: 0 auto;
-            left: auto !important;
-            top: auto !important;
-            transform: none !important;
-            pointer-events: auto;
             cursor: grab;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+            transition: transform 0.1s;
         }
-        /* Elemento arrastrable general */
+        .item-inventario:active {
+            cursor: grabbing;
+        }
+        .item-inventario img {
+            width: 100%;
+            display: block;
+            border-radius: 12px;
+            pointer-events: none;
+        }
+        /* Elemento arrastrable que se crea (copia) */
         .item-drag {
             position: absolute;
             cursor: grab;
             filter: drop-shadow(2px 2px 6px rgba(0,0,0,0.6));
-            z-index: 100;
+            z-index: 300;
         }
         .item-drag:active {
             cursor: grabbing;
@@ -175,9 +187,9 @@
             background: #ffcc88;
             border-radius: 3px;
             cursor: nw-resize;
-            z-index: 200;
+            z-index: 350;
         }
-        /* ZONA PASTILLAS */
+        /* Zona pastillas slide6 */
         .zona-pastillas {
             position: relative;
             background: #1f1b18;
@@ -205,7 +217,7 @@
             cursor: grab;
             z-index: 100;
         }
-        /* ÍNDICE FINAL */
+        /* Índice final */
         .indice {
             display: none;
             background: #141110;
@@ -251,8 +263,8 @@
             .texto-mediano { font-size: 1.2rem; }
             button { font-size: 1rem; padding: 0.6rem 1.2rem; }
             .btn-continuar { font-size: 1.2rem; padding: 0.8rem 1.8rem; }
-            .caja-paleta { width: 100px; }
-            .caja-paleta .item-drag { width: 70px !important; }
+            .inventario { width: 100px; right: 10px; top: 10px; }
+            .item-inventario { width: 70px; }
             .pastilla-base { width: 120px; }
             .pastilla-clon { width: 90px; }
         }
@@ -294,17 +306,17 @@
             <button class="btn-continuar" data-siguiente="slide4">Continuar</button>
         </div>
 
-        <!-- SLIDE 4: JUEGO DE VESTIR (ropa) -->
+        <!-- SLIDE 4: JUEGO DE VESTIR (ropa) con inventario -->
         <div id="slide4" class="slide">
             <div class="texto-grande">“Para poder moveros por el mundo necesitáis un disfraz, ¿cómo si no la gente va a interactuar con vosotres con normalidad?”</div>
-            <div id="zonaRopa" class="zona-vestir fondo-viste"></div>
+            <div id="zonaRopa" class="zona-juego fondo-viste"></div>
             <button class="btn-continuar" data-siguiente="slide5">Continuar</button>
         </div>
 
-        <!-- SLIDE 5: JUEGO DE VESTIR (caras) -->
+        <!-- SLIDE 5: JUEGO DE VESTIR (caras) con inventario -->
         <div id="slide5" class="slide">
             <div class="texto-grande">“Perfecto, ahora ponle guapite, ¿qué rostro tiene? Recuerda mirarle a los ojos.”</div>
-            <div id="zonaCaras" class="zona-vestir fondo-poncara"></div>
+            <div id="zonaCaras" class="zona-juego fondo-poncara"></div>
             <button class="btn-continuar" data-siguiente="slide6">Continuar</button>
         </div>
 
@@ -355,7 +367,6 @@
         });
     });
 
-    // Slide1: botones a los 5 segundos
     setTimeout(() => {
         const div = document.getElementById('botonesExtra1');
         if (div) div.style.display = 'flex';
@@ -363,18 +374,16 @@
     document.getElementById('btnSi')?.addEventListener('click', () => mostrarSlide('slide2'));
     document.getElementById('btnNo')?.addEventListener('click', () => mostrarSlide('slide3'));
 
-    // Slide2: texto pequeño a los 2 segundos
     setTimeout(() => {
         const txt = document.getElementById('textoPeqSlide2');
         if (txt) txt.style.opacity = '1';
     }, 2000);
 
-    // Slide3: botones mascota desaparecen
     document.getElementById('btnMascota1')?.addEventListener('click', (e) => e.target.style.display = 'none');
     document.getElementById('btnMascota2')?.addEventListener('click', (e) => e.target.style.display = 'none');
 
     // --------------------------------------------------------------
-    // 2. Funciones de arrastre y redimension (manual)
+    // 2. Funciones para elementos arrastrables (copias)
     // --------------------------------------------------------------
     function hacerArrastrable(elemento, contenedor) {
         let isDragging = false;
@@ -446,15 +455,13 @@
         });
     }
 
-    // Crear un elemento arrastrable y redimensionable, y opcionalmente añadirlo a una caja-paleta
-    function crearElemento(contenedorId, src, left, top, width, dentroCaja = false) {
-        const contenedor = document.getElementById(contenedorId);
-        if (!contenedor) return null;
+    // Crear una copia arrastrable a partir de un ítem del inventario
+    function crearCopiaArrastrable(src, x, y, contenedor) {
         const div = document.createElement('div');
         div.className = 'item-drag';
-        div.style.left = left + 'px';
-        div.style.top = top + 'px';
-        div.style.width = width + 'px';
+        div.style.left = x + 'px';
+        div.style.top = y + 'px';
+        div.style.width = '100px';
         const img = document.createElement('img');
         img.src = src;
         div.appendChild(img);
@@ -465,7 +472,7 @@
     }
 
     // --------------------------------------------------------------
-    // 3. Inicializar slides 4 y 5 con CAJA LATERAL VISIBLE
+    // 3. Inicializar inventario para slide4 y slide5
     // --------------------------------------------------------------
     const ropas = [
         'delantalvisteameti.png',
@@ -480,78 +487,87 @@
         'madonnacara.png'
     ];
 
-    let zonaRopaInicializada = false;
-    let zonaCarasInicializada = false;
+    let zonaRopaLista = false;
+    let zonaCarasLista = false;
 
-    function inicializarSlide4() {
-        if (zonaRopaInicializada) return;
-        const cont = document.getElementById('zonaRopa');
-        if (!cont) return;
+    function inicializarInventario(zonaId, items) {
+        const zona = document.getElementById(zonaId);
+        if (!zona) return;
+        // Crear caja inventario
+        const inventario = document.createElement('div');
+        inventario.className = 'inventario';
+        inventario.innerHTML = '<p>🧸 arrastra para vestir</p>';
+        zona.appendChild(inventario);
 
-        // Crear caja lateral (paleta)
-        const paleta = document.createElement('div');
-        paleta.className = 'caja-paleta';
-        cont.appendChild(paleta);
-
-        // Crear los PNG dentro de la paleta (posicionados relativamente dentro de ella)
-        ropas.forEach((src, idx) => {
-            const div = document.createElement('div');
-            div.className = 'item-drag';
-            // Posición dentro de la paleta: se usa flex, así que no necesitamos left/top
-            div.style.position = 'relative';
-            div.style.width = '100px';
-            div.style.margin = '0 auto';
+        items.forEach(src => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'item-inventario';
             const img = document.createElement('img');
             img.src = src;
-            div.appendChild(img);
-            paleta.appendChild(div);
-            // Hacer arrastrable y redimensionable, pero el contenedor para arrastre es toda la zonaRopa
-            hacerArrastrable(div, cont);
-            hacerRedimensionable(div);
+            itemDiv.appendChild(img);
+            inventario.appendChild(itemDiv);
+
+            // Al hacer clic y arrastrar desde el inventario, creamos una copia en la posición del ratón
+            itemDiv.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                const startX = e.clientX;
+                const startY = e.clientY;
+                const zonaRect = zona.getBoundingClientRect();
+                let cloneX = startX - zonaRect.left - 50; // centrado aprox
+                let cloneY = startY - zonaRect.top - 50;
+                cloneX = Math.min(Math.max(cloneX, 0), zonaRect.width - 100);
+                cloneY = Math.min(Math.max(cloneY, 0), zonaRect.height - 100);
+                const clon = crearCopiaArrastrable(src, cloneX, cloneY, zona);
+                // Simular arrastre inmediato para que se mueva con el ratón (opcional)
+                // Por simplicidad, el usuario tendrá que volver a agarrar el clon. Pero podemos hacer que el clon siga al ratón mientras se arrastra.
+                // Vamos a implementar un seguimiento temporal:
+                let mouseMoveHandler, mouseUpHandler;
+                let isDraggingClone = true;
+                let cloneLeft = cloneX, cloneTop = cloneY;
+                function onMouseMove(e) {
+                    if (!isDraggingClone) return;
+                    const newLeft = e.clientX - zonaRect.left - 50;
+                    const newTop = e.clientY - zonaRect.top - 50;
+                    clon.style.left = Math.min(Math.max(newLeft, 0), zonaRect.width - 100) + 'px';
+                    clon.style.top = Math.min(Math.max(newTop, 0), zonaRect.height - 100) + 'px';
+                }
+                function onMouseUp() {
+                    isDraggingClone = false;
+                    window.removeEventListener('mousemove', onMouseMove);
+                    window.removeEventListener('mouseup', onMouseUp);
+                    // Asegurar que el clon tenga los eventos de arrastre normales (ya los tiene por crearCopiaArrastrable)
+                }
+                window.addEventListener('mousemove', onMouseMove);
+                window.addEventListener('mouseup', onMouseUp);
+            });
         });
-
-        zonaRopaInicializada = true;
-    }
-
-    function inicializarSlide5() {
-        if (zonaCarasInicializada) return;
-        const cont = document.getElementById('zonaCaras');
-        if (!cont) return;
-
-        const paleta = document.createElement('div');
-        paleta.className = 'caja-paleta';
-        cont.appendChild(paleta);
-
-        caretas.forEach((src, idx) => {
-            const div = document.createElement('div');
-            div.className = 'item-drag';
-            div.style.position = 'relative';
-            div.style.width = '100px';
-            div.style.margin = '0 auto';
-            const img = document.createElement('img');
-            img.src = src;
-            div.appendChild(img);
-            paleta.appendChild(div);
-            hacerArrastrable(div, cont);
-            hacerRedimensionable(div);
-        });
-
-        zonaCarasInicializada = true;
     }
 
     // Observador para inicializar cuando la slide se active
-    const observerSlides = new MutationObserver(() => {
+    const observerJuegos = new MutationObserver(() => {
         const slide4 = document.getElementById('slide4');
         const slide5 = document.getElementById('slide5');
-        if (slide4.classList.contains('activo')) inicializarSlide4();
-        if (slide5.classList.contains('activo')) inicializarSlide5();
+        if (slide4.classList.contains('activo') && !zonaRopaLista) {
+            inicializarInventario('zonaRopa', ropas);
+            zonaRopaLista = true;
+        }
+        if (slide5.classList.contains('activo') && !zonaCarasLista) {
+            inicializarInventario('zonaCaras', caretas);
+            zonaCarasLista = true;
+        }
     });
-    observerSlides.observe(document.querySelector('.slides-container'), { attributes: true, subtree: true, attributeFilter: ['class'] });
-    if (document.getElementById('slide4').classList.contains('activo')) inicializarSlide4();
-    if (document.getElementById('slide5').classList.contains('activo')) inicializarSlide5();
+    observerJuegos.observe(document.querySelector('.slides-container'), { attributes: true, subtree: true, attributeFilter: ['class'] });
+    if (document.getElementById('slide4').classList.contains('activo') && !zonaRopaLista) {
+        inicializarInventario('zonaRopa', ropas);
+        zonaRopaLista = true;
+    }
+    if (document.getElementById('slide5').classList.contains('activo') && !zonaCarasLista) {
+        inicializarInventario('zonaCaras', caretas);
+        zonaCarasLista = true;
+    }
 
     // --------------------------------------------------------------
-    // 4. Slide 6: pastilla clonable (más grande)
+    // 4. Slide 6: pastillas clonables (funciona igual que antes)
     // --------------------------------------------------------------
     const zonaPastis = document.getElementById('zonaPastis');
     const pastillaBase = document.getElementById('pastillaBase');
@@ -591,7 +607,6 @@
             clon.style.cursor = 'grab';
         });
 
-        // Asa de redimension
         const handle = document.createElement('div');
         handle.className = 'resize-handle';
         clon.appendChild(handle);
@@ -642,7 +657,7 @@
     });
 
     // --------------------------------------------------------------
-    // 5. Cierre del modal y persistencia
+    // 5. Cierre modal y persistencia
     // --------------------------------------------------------------
     const modal = document.getElementById('modalGlobal');
     const indice = document.getElementById('indiceObras');
@@ -670,4 +685,4 @@
     modal.addEventListener('click', (e) => { if (e.target === modal) e.preventDefault(); });
 </script>
 </body>
-</html>
+</html> 
