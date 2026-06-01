@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>TEAtraviesa · Web Arte</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+        body {
+            font-family: 'Garamond', 'Times New Roman', serif;
+            background: #0a0c10;
+            color: #f0ede8;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Modal obligatorio */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.96);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .slides-container {
+            width: 90%;
+            max-width: 1400px;
+            height: 90%;
+            background: #1e1b1a;
+            border-radius: 2rem;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #7a5a46;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+        .slide {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .slide.activo {
+            display: flex;
+        }
+        /* TEXTOS GRANDES */
+        .texto-grande {
+            font-size: 2rem;
+            line-height: 1.3;
+            text-align: center;
+            font-weight: 500;
+        }
+        .texto-mediano {
+            font-size: 1.5rem;
+            line-height: 1.4;
+            text-align: center;
+        }
+        .texto-chico {
+            font-size: 1.1rem;
+            color: #bcb2a6;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+        /* BOTONES GRANDES */
+        .botonera {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #2c2622;
+            border: none;
+            color: white;
+            padding: 0.8rem 1.8rem;
+            font-family: inherit;
+            font-size: 1.3rem;
+            border-radius: 3rem;
+            cursor: pointer;
+            border: 1px solid #8b6b55;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #4f3b30;
+            transform: scale(1.02);
+        }
+        .btn-continuar {
+            background: #7f5a48;
+            align-self: flex-end;
+            margin-top: 0.5rem;
+            padding: 1rem 2.5rem;
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+        /* ZONA DE VESTIR (juegos flash) */
+        .zona-vestir {
+            position: relative;
+            background: #2a2522;
+            border-radius: 1.5rem;
+            flex: 1;
+            min-height: 500px;
+            overflow: hidden;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: #1a1614;
+            margin: 0.5rem 0;
+        }
+        .fondo-viste { background-image: url('visteametifoto.jpg'); }
+        .fondo-poncara { background-image: url('poncaraameti.jpg'); }
+
+        /* CAJA LATERAL para los PNG (como una paleta) */
+        .caja-paleta {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            width: 140px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            border-radius: 1rem;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border: 1px solid #c0a080;
+            z-index: 300;
+            pointer-events: none; /* para que los clics pasen a los items */
+        }
+        .caja-paleta .item-drag {
+            position: relative !important;
+            width: 100px !important;
+            margin: 0 auto;
+            left: auto !important;
+            top: auto !important;
+            transform: none !important;
+            pointer-events: auto;
+            cursor: grab;
+        }
+        /* Elemento arrastrable general */
+        .item-drag {
+            position: absolute;
+            cursor: grab;
+            filter: drop-shadow(2px 2px 6px rgba(0,0,0,0.6));
+            z-index: 100;
+        }
+        .item-drag:active {
+            cursor: grabbing;
+        }
+        .item-drag img {
+            width: 100%;
+            height: auto;
+            display: block;
+            pointer-events: none;
+            border-radius: 12px;
+        }
+        .resize-handle {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 18px;
+            height: 18px;
+            background: #ffcc88;
+            border-radius: 3px;
+            cursor: nw-resize;
+            z-index: 200;
+        }
+        /* ZONA PASTILLAS */
+        .zona-pastillas {
+            position: relative;
+            background: #1f1b18;
+            border-radius: 1.5rem;
+            flex: 1;
+            min-height: 450px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+        .pastilla-base {
+            width: 180px;
+            cursor: pointer;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 50;
+            transition: transform 0.1s;
+        }
+        .pastilla-base:hover {
+            transform: scale(1.05);
+        }
+        .pastilla-clon {
+            position: absolute;
+            width: 120px;
+            cursor: grab;
+            z-index: 100;
+        }
+        /* ÍNDICE FINAL */
+        .indice {
+            display: none;
+            background: #141110;
+            padding: 2rem;
+            border-radius: 2rem;
+            text-align: center;
+            max-width: 1000px;
+            width: 90%;
+            margin: 2rem auto;
+        }
+        .indice.visible {
+            display: block;
+        }
+        .lista-obras {
+            list-style: none;
+            margin: 2rem 0;
+        }
+        .lista-obras li {
+            margin: 1.5rem 0;
+        }
+        .lista-obras a {
+            font-size: 1.8rem;
+            color: #dbbf9b;
+            text-decoration: none;
+            border-bottom: 2px solid #7a5a46;
+        }
+        .volver-inicio {
+            background: #7f5a48;
+            display: inline-block;
+            margin-top: 1.5rem;
+            padding: 1rem 2rem;
+            border-radius: 3rem;
+            color: white;
+            text-decoration: none;
+            font-size: 1.3rem;
+        }
+        hr {
+            border-color: #3a2e28;
+            margin: 1rem 0;
+        }
+        @media (max-width: 700px) {
+            .texto-grande { font-size: 1.5rem; }
+            .texto-mediano { font-size: 1.2rem; }
+            button { font-size: 1rem; padding: 0.6rem 1.2rem; }
+            .btn-continuar { font-size: 1.2rem; padding: 0.8rem 1.8rem; }
+            .caja-paleta { width: 100px; }
+            .caja-paleta .item-drag { width: 70px !important; }
+            .pastilla-base { width: 120px; }
+            .pastilla-clon { width: 90px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="modalGlobal" class="modal">
+    <div class="slides-container">
+        <!-- SLIDE 1 -->
+        <div id="slide1" class="slide activo">
+            <div class="texto-grande">Enhorabuena, has sido seleccionado para recibir tratamiento psiquiátrico, ¿quieres descubrir cuántos adultos diagnosticados en España están en tu misma posición?</div>
+            <div id="botonesExtra1" class="botonera" style="display: none;">
+                <button id="btnSi">Por supuesto, enséñame!</button>
+                <button id="btnNo">No, gracias</button>
+            </div>
+            <button class="btn-continuar" data-siguiente="slide2">Continuar</button>
+        </div>
+
+        <!-- SLIDE 2 -->
+        <div id="slide2" class="slide">
+            <div class="texto-mediano">Según la siguiente muestra, solo el 0,04% de los adultos tiene un diagnóstico formal de TDAH registrado en su historia clínica y el 0,07% de los adultos tiene una prescripción activa de un fármaco específico para el TDAH (como metilfenidato o atomoxetina)… Asimismo, del subgrupo de adultos que sí tenían un diagnóstico, únicamente el 32,05% recibía el tratamiento farmacológico correspondiente: entre quienes han logrado ser diagnosticados, dos de cada tres adultos con TDAH no acceden a la medicación.</div>
+            <div id="textoPeqSlide2" class="texto-chico" style="opacity:0;">*Ramos-Quiroga, J. A., et al. (2023). The Lancet Regional Health – Europe, 34, 100740 (*Este informe, pese a ser reciente, toma su muestra exclusivamente desde atención primaria de Cataluña con personas de 18 a 44 años).</div>
+            <button class="btn-continuar" data-siguiente="slide3">Continuar</button>
+        </div>
+
+        <!-- SLIDE 3 -->
+        <div id="slide3" class="slide">
+            <div class="texto-grande">En este viaje de psicofármacos te ha sido asignada una mascota, ¡salúdala! Es tu primera prescripción: Metalfenidato.</div>
+            <div class="botonera">
+                <button id="btnMascota1">Encantade de conocerte, Meti, ¡gracias por acompañarme!</button>
+                <button id="btnMascota2">¡Jojo! Ahora somos dos peleles juntos, tú eres otra marioneta, ¿verdad?</button>
+            </div>
+            <div style="background:#000; border-radius:1rem; overflow:hidden;">
+                <video controls autoplay muted playsinline width="100%" style="max-height: 50vh;">
+                    <source src="videoarte1presentacionmeti.mp4" type="video/mp4">
+                </video>
+            </div>
+            <button class="btn-continuar" data-siguiente="slide4">Continuar</button>
+        </div>
+
+        <!-- SLIDE 4: JUEGO DE VESTIR (ropa) -->
+        <div id="slide4" class="slide">
+            <div class="texto-grande">“Para poder moveros por el mundo necesitáis un disfraz, ¿cómo si no la gente va a interactuar con vosotres con normalidad?”</div>
+            <div id="zonaRopa" class="zona-vestir fondo-viste"></div>
+            <button class="btn-continuar" data-siguiente="slide5">Continuar</button>
+        </div>
+
+        <!-- SLIDE 5: JUEGO DE VESTIR (caras) -->
+        <div id="slide5" class="slide">
+            <div class="texto-grande">“Perfecto, ahora ponle guapite, ¿qué rostro tiene? Recuerda mirarle a los ojos.”</div>
+            <div id="zonaCaras" class="zona-vestir fondo-poncara"></div>
+            <button class="btn-continuar" data-siguiente="slide6">Continuar</button>
+        </div>
+
+        <!-- SLIDE 6: PASTILLAS CLONABLES -->
+        <div id="slide6" class="slide">
+            <div class="texto-grande">“¡Lo has hecho genial! Sin embargo, ¿no crees que estaréis un poco solos? Haz un nuevo amigo, corre, anticipa una sobredosis…”</div>
+            <div id="zonaPastis" class="zona-pastillas">
+                <img id="pastillaBase" class="pastilla-base" src="pastilla.png" alt="pastilla">
+            </div>
+            <button class="btn-continuar" data-siguiente="slide7">Continuar</button>
+        </div>
+
+        <!-- SLIDE 7 -->
+        <div id="slide7" class="slide">
+            <div class="texto-grande">¡Qué bien lo has hecho! Ahora, si quieres, continúa descubriendo el proyecto TEAtraviesa. Por el momento, ha sido todo un placer.</div>
+            <button id="cerrarModalBtn" class="btn-continuar">Continuar</button>
+        </div>
+    </div>
+</div>
+
+<div id="indiceObras" class="indice">
+    <h1 style="font-size:2.5rem;">TEAtraviesa · Obras</h1>
+    <ul class="lista-obras">
+        <li><a href="cepillarse.html" target="_blank">1) Cepillarselosdientesproject</a></li>
+        <li><a href="cleanfisting.html" target="_blank">2) Cleanfisting</a></li>
+        <li><a href="masilla.html" target="_blank">3) +illaserotoninérgica</a></li>
+        <li><a href="ranacepam.html" target="_blank">4) Ranacepam®</a></li>
+    </ul>
+    <a href="#" id="reiniciarExperiencia" class="volver-inicio">⟳ Volver al inicio interactivo</a>
+    <hr>
+    <p>Proyecto de web arte · experiencia interactiva</p>
+</div>
+
+<script>
+    // --------------------------------------------------------------
+    // 1. Navegación entre slides
+    // --------------------------------------------------------------
+    const slides = document.querySelectorAll('.slide');
+    function mostrarSlide(id) {
+        slides.forEach(s => s.classList.remove('activo'));
+        document.getElementById(id).classList.add('activo');
+    }
+
+    document.querySelectorAll('.btn-continuar').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const siguiente = btn.getAttribute('data-siguiente');
+            if (siguiente) mostrarSlide(siguiente);
+        });
+    });
+
+    // Slide1: botones a los 5 segundos
+    setTimeout(() => {
+        const div = document.getElementById('botonesExtra1');
+        if (div) div.style.display = 'flex';
+    }, 5000);
+    document.getElementById('btnSi')?.addEventListener('click', () => mostrarSlide('slide2'));
+    document.getElementById('btnNo')?.addEventListener('click', () => mostrarSlide('slide3'));
+
+    // Slide2: texto pequeño a los 2 segundos
+    setTimeout(() => {
+        const txt = document.getElementById('textoPeqSlide2');
+        if (txt) txt.style.opacity = '1';
+    }, 2000);
+
+    // Slide3: botones mascota desaparecen
+    document.getElementById('btnMascota1')?.addEventListener('click', (e) => e.target.style.display = 'none');
+    document.getElementById('btnMascota2')?.addEventListener('click', (e) => e.target.style.display = 'none');
+
+    // --------------------------------------------------------------
+    // 2. Funciones de arrastre y redimension (manual)
+    // --------------------------------------------------------------
+    function hacerArrastrable(elemento, contenedor) {
+        let isDragging = false;
+        let startX, startY, initialLeft, initialTop;
+
+        elemento.addEventListener('mousedown', (e) => {
+            if (e.target.classList.contains('resize-handle')) return;
+            e.preventDefault();
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            initialLeft = parseFloat(elemento.style.left);
+            initialTop = parseFloat(elemento.style.top);
+            elemento.style.cursor = 'grabbing';
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            let newLeft = initialLeft + dx;
+            let newTop = initialTop + dy;
+            const contRect = contenedor.getBoundingClientRect();
+            const elemRect = elemento.getBoundingClientRect();
+            newLeft = Math.min(Math.max(newLeft, 0), contRect.width - elemRect.width);
+            newTop = Math.min(Math.max(newTop, 0), contRect.height - elemRect.height);
+            elemento.style.left = newLeft + 'px';
+            elemento.style.top = newTop + 'px';
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+            elemento.style.cursor = 'grab';
+        });
+    }
+
+    function hacerRedimensionable(elemento) {
+        const handle = document.createElement('div');
+        handle.className = 'resize-handle';
+        elemento.appendChild(handle);
+
+        let isResizing = false;
+        let startX, startY, startWidth, startHeight;
+
+        handle.addEventListener('mousedown', (e) => {
+            e.stopPropagation();
+            isResizing = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            startWidth = elemento.offsetWidth;
+            startHeight = elemento.offsetHeight;
+            e.preventDefault();
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            let newWidth = startWidth + dx;
+            let newHeight = startHeight + dy;
+            if (newWidth < 50) newWidth = 50;
+            if (newHeight < 50) newHeight = 50;
+            elemento.style.width = newWidth + 'px';
+            elemento.style.height = 'auto';
+        });
+
+        window.addEventListener('mouseup', () => {
+            isResizing = false;
+        });
+    }
+
+    // Crear un elemento arrastrable y redimensionable, y opcionalmente añadirlo a una caja-paleta
+    function crearElemento(contenedorId, src, left, top, width, dentroCaja = false) {
+        const contenedor = document.getElementById(contenedorId);
+        if (!contenedor) return null;
+        const div = document.createElement('div');
+        div.className = 'item-drag';
+        div.style.left = left + 'px';
+        div.style.top = top + 'px';
+        div.style.width = width + 'px';
+        const img = document.createElement('img');
+        img.src = src;
+        div.appendChild(img);
+        contenedor.appendChild(div);
+        hacerArrastrable(div, contenedor);
+        hacerRedimensionable(div);
+        return div;
+    }
+
+    // --------------------------------------------------------------
+    // 3. Inicializar slides 4 y 5 con CAJA LATERAL VISIBLE
+    // --------------------------------------------------------------
+    const ropas = [
+        'delantalvisteameti.png',
+        'gorrovisteameti.png',
+        'monovisteameti.png',
+        'vestidovisteameti.png'
+    ];
+    const caretas = [
+        'divinecara.png',
+        'foucaultcara.png',
+        'didihubermancara.png',
+        'madonnacara.png'
+    ];
+
+    let zonaRopaInicializada = false;
+    let zonaCarasInicializada = false;
+
+    function inicializarSlide4() {
+        if (zonaRopaInicializada) return;
+        const cont = document.getElementById('zonaRopa');
+        if (!cont) return;
+
+        // Crear caja lateral (paleta)
+        const paleta = document.createElement('div');
+        paleta.className = 'caja-paleta';
+        cont.appendChild(paleta);
+
+        // Crear los PNG dentro de la paleta (posicionados relativamente dentro de ella)
+        ropas.forEach((src, idx) => {
+            const div = document.createElement('div');
+            div.className = 'item-drag';
+            // Posición dentro de la paleta: se usa flex, así que no necesitamos left/top
+            div.style.position = 'relative';
+            div.style.width = '100px';
+            div.style.margin = '0 auto';
+            const img = document.createElement('img');
+            img.src = src;
+            div.appendChild(img);
+            paleta.appendChild(div);
+            // Hacer arrastrable y redimensionable, pero el contenedor para arrastre es toda la zonaRopa
+            hacerArrastrable(div, cont);
+            hacerRedimensionable(div);
+        });
+
+        zonaRopaInicializada = true;
+    }
+
+    function inicializarSlide5() {
+        if (zonaCarasInicializada) return;
+        const cont = document.getElementById('zonaCaras');
+        if (!cont) return;
+
+        const paleta = document.createElement('div');
+        paleta.className = 'caja-paleta';
+        cont.appendChild(paleta);
+
+        caretas.forEach((src, idx) => {
+            const div = document.createElement('div');
+            div.className = 'item-drag';
+            div.style.position = 'relative';
+            div.style.width = '100px';
+            div.style.margin = '0 auto';
+            const img = document.createElement('img');
+            img.src = src;
+            div.appendChild(img);
+            paleta.appendChild(div);
+            hacerArrastrable(div, cont);
+            hacerRedimensionable(div);
+        });
+
+        zonaCarasInicializada = true;
+    }
+
+    // Observador para inicializar cuando la slide se active
+    const observerSlides = new MutationObserver(() => {
+        const slide4 = document.getElementById('slide4');
+        const slide5 = document.getElementById('slide5');
+        if (slide4.classList.contains('activo')) inicializarSlide4();
+        if (slide5.classList.contains('activo')) inicializarSlide5();
+    });
+    observerSlides.observe(document.querySelector('.slides-container'), { attributes: true, subtree: true, attributeFilter: ['class'] });
+    if (document.getElementById('slide4').classList.contains('activo')) inicializarSlide4();
+    if (document.getElementById('slide5').classList.contains('activo')) inicializarSlide5();
+
+    // --------------------------------------------------------------
+    // 4. Slide 6: pastilla clonable (más grande)
+    // --------------------------------------------------------------
+    const zonaPastis = document.getElementById('zonaPastis');
+    const pastillaBase = document.getElementById('pastillaBase');
+    let contadorClones = 0;
+
+    function hacerClonArrastrableYRedimensionable(clon, contenedor) {
+        clon.style.cursor = 'grab';
+        let isDragging = false;
+        let startX, startY, initialLeft, initialTop;
+
+        clon.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            initialLeft = parseFloat(clon.style.left);
+            initialTop = parseFloat(clon.style.top);
+            clon.style.cursor = 'grabbing';
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            let newLeft = initialLeft + dx;
+            let newTop = initialTop + dy;
+            const contRect = contenedor.getBoundingClientRect();
+            const elemRect = clon.getBoundingClientRect();
+            newLeft = Math.min(Math.max(newLeft, 0), contRect.width - elemRect.width);
+            newTop = Math.min(Math.max(newTop, 0), contRect.height - elemRect.height);
+            clon.style.left = newLeft + 'px';
+            clon.style.top = newTop + 'px';
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+            clon.style.cursor = 'grab';
+        });
+
+        // Asa de redimension
+        const handle = document.createElement('div');
+        handle.className = 'resize-handle';
+        clon.appendChild(handle);
+        let isResizing = false;
+        let startW, startH, startXr, startYr;
+        handle.addEventListener('mousedown', (e) => {
+            e.stopPropagation();
+            isResizing = true;
+            startXr = e.clientX;
+            startYr = e.clientY;
+            startW = clon.offsetWidth;
+            startH = clon.offsetHeight;
+            e.preventDefault();
+        });
+        window.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            const dx = e.clientX - startXr;
+            const dy = e.clientY - startYr;
+            let newW = startW + dx;
+            let newH = startH + dy;
+            if (newW < 50) newW = 50;
+            if (newH < 50) newH = 50;
+            clon.style.width = newW + 'px';
+            clon.style.height = 'auto';
+        });
+        window.addEventListener('mouseup', () => {
+            isResizing = false;
+        });
+    }
+
+    pastillaBase.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const clon = document.createElement('img');
+        clon.src = 'pastilla.png';
+        clon.className = 'pastilla-clon';
+        clon.id = 'clon_' + (contadorClones++);
+        const rectBase = pastillaBase.getBoundingClientRect();
+        const rectZona = zonaPastis.getBoundingClientRect();
+        let left = (rectBase.left - rectZona.left) + 80;
+        let top = (rectBase.top - rectZona.top) + 80;
+        left = Math.min(Math.max(left, 10), rectZona.width - 130);
+        top = Math.min(Math.max(top, 10), rectZona.height - 130);
+        clon.style.left = left + 'px';
+        clon.style.top = top + 'px';
+        clon.style.width = '120px';
+        zonaPastis.appendChild(clon);
+        hacerClonArrastrableYRedimensionable(clon, zonaPastis);
+    });
+
+    // --------------------------------------------------------------
+    // 5. Cierre del modal y persistencia
+    // --------------------------------------------------------------
+    const modal = document.getElementById('modalGlobal');
+    const indice = document.getElementById('indiceObras');
+    const cerrarBtn = document.getElementById('cerrarModalBtn');
+
+    cerrarBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+        indice.classList.add('visible');
+        localStorage.setItem('teatraviesa_visto', 'true');
+    });
+
+    if (localStorage.getItem('teatraviesa_visto') === 'true') {
+        modal.style.display = 'none';
+        indice.classList.add('visible');
+    }
+
+    const reiniciarLink = document.getElementById('reiniciarExperiencia');
+    reiniciarLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('teatraviesa_visto');
+        location.reload();
+    });
+
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.style.display !== 'none') e.preventDefault(); });
+    modal.addEventListener('click', (e) => { if (e.target === modal) e.preventDefault(); });
+</script>
+</body>
+</html>
