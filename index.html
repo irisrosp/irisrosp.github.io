@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TEAtraviesa · Web Arte</title>
+    <!-- Librería para arrastrar y redimensionar -->
+    <script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.27/dist/interact.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* evita seleccionar texto mientras se arrastra, pero no afecta a inputs */
+        }
+
+        body {
+            font-family: 'Garamond', 'Times New Roman', serif;
+            background-color: #0a0c10;
+            color: #eaecef;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        /* --- MODAL OBLIGATORIO (no se puede cerrar) --- */
+        .modal-obligatorio {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+            padding: 2rem;
+        }
+
+        .slide-container {
+            max-width: 1000px;
+            width: 100%;
+            background: #1e1b1a;
+            border-radius: 32px;
+            padding: 2rem;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.4);
+            border: 1px solid #3e3a36;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .slide {
+            display: none;
+            flex-direction: column;
+            gap: 1.8rem;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        /* textos y botones */
+        .texto-principal {
+            font-size: 1.3rem;
+            line-height: 1.5;
+            margin-bottom: 0.5rem;
+        }
+
+        .texto-secundario {
+            font-size: 0.9rem;
+            color: #bcb2a6;
+            margin-top: 0.5rem;
+            border-left: 3px solid #bf8f6e;
+            padding-left: 1rem;
+        }
+
+        .botonera {
+            display: flex;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        button {
+            background: #2c2622;
+            border: none;
+            color: #f0e6d8;
+            padding: 0.8rem 1.8rem;
+            font-family: 'Garamond', monospace;
+            font-size: 1rem;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid #5f4c3c;
+        }
+
+        button:hover {
+            background: #4f3b30;
+            transform: scale(1.02);
+        }
+
+        .btn-continuar {
+            background: #7f5a48;
+            margin-left: auto;
+            display: inline-block;
+            width: fit-content;
+        }
+
+        /* Zona de juegos interactivos (arrastrar / redimensionar) */
+        .zona-interactiva {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            background: #2a2522;
+            padding: 1rem;
+            border-radius: 24px;
+            min-height: 400px;
+            position: relative;
+        }
+
+        .fija {
+            flex: 1;
+            min-width: 200px;
+            background: #100e0c;
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .fija img {
+            max-width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            pointer-events: none; /* para que no interfiera con los draggables */
+        }
+
+        .draggables-area {
+            flex: 2;
+            position: relative;
+            background: #1f1b18;
+            border-radius: 16px;
+            min-height: 350px;
+            overflow: hidden;
+        }
+
+        .draggable-item {
+            position: absolute;
+            cursor: grab;
+            width: auto;
+            max-width: 150px;
+            z-index: 50;
+        }
+
+        .draggable-item:active {
+            cursor: grabbing;
+        }
+
+        .draggable-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            pointer-events: none;
+        }
+
+        /* pastilla clonable */
+        .pastilla-clon {
+            position: absolute;
+            cursor: grab;
+            width: 70px;
+            z-index: 60;
+        }
+
+        /* contenido principal después del modal */
+        .contenido-principal {
+            display: none;
+            max-width: 1000px;
+            width: 100%;
+            background: #141110;
+            padding: 2rem;
+            border-radius: 32px;
+        }
+
+        .contenido-principal.visible {
+            display: block;
+        }
+
+        .lista-obras {
+            list-style: none;
+            margin-top: 2rem;
+        }
+
+        .lista-obras li {
+            margin: 1.5rem 0;
+        }
+
+        .lista-obras a {
+            font-size: 1.8rem;
+            color: #dbbf9b;
+            text-decoration: none;
+            border-bottom: 1px solid #6a4e3a;
+            transition: 0.2s;
+        }
+
+        .lista-obras a:hover {
+            color: #f5e2c1;
+            border-bottom-color: #b87a54;
+        }
+
+        hr {
+            border-color: #3a2e28;
+            margin: 1rem 0;
+        }
+
+        @media (max-width: 700px) {
+            .slide-container { padding: 1.2rem; }
+            .texto-principal { font-size: 1rem; }
+            .btn-continuar { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- VENTANA OBLIGATORIA (MODAL) -->
+<div id="modalInicial" class="modal-obligatorio">
+    <div class="slide-container">
+        <!-- SLIDE 1 -->
+        <div id="slide1" class="slide active">
+            <div class="texto-principal" id="textoSlide1_1">
+                Enhorabuena, has sido seleccionado para recibir tratamiento psiquiátrico, ¿quieres descubrir cuántos adultos diagnosticados en España están en tu misma posición?
+            </div>
+            <div id="textoSlide1_2" style="display: none;" class="botonera">
+                <button id="btnSi">Por supuesto, enséñame!</button>
+                <button id="btnNo">No, gracias</button>
+            </div>
+        </div>
+
+        <!-- SLIDE 2 -->
+        <div id="slide2" class="slide">
+            <div class="texto-principal">
+                Según la siguiente muestra, solo el 0,04% de los adultos tiene un diagnóstico formal de TDAH registrado en su historia clínica y el 0,07% de los adultos tiene una prescripción activa de un fármaco específico para el TDAH (como metilfenidato o atomoxetina)… 
+                Asimismo, del subgrupo de adultos que sí tenían un diagnóstico, únicamente el 32,05% recibía el tratamiento farmacológico correspondiente: entre quienes han logrado ser diagnosticados, dos de cada tres adultos con TDAH no acceden a la medicación.
+            </div>
+            <div class="texto-secundario" id="textoSlide2_peq" style="opacity:0; transition:0.3s;">
+                *Ramos-Quiroga, J. A., et al. (2023). ADHD medication trends in Europe: a longitudinal study using prescription data. The Lancet Regional Health – Europe, 34, 100740 (*Este informe, pese a ser reciente, toma su muestra exclusivamente desde atención primaria de Cataluña con personas de 18 a 44 años).
+            </div>
+            <div class="botonera"><button class="btn-continuar" data-next="slide3">Continuar</button></div>
+        </div>
+
+        <!-- SLIDE 3 -->
+        <div id="slide3" class="slide">
+            <div class="texto-principal">
+                En este viaje de psicofármacos te ha sido asignada una mascota, ¡salúdala! Es tu primera prescripción: Metalfenidato.
+            </div>
+            <div class="botonera">
+                <button id="btnMascota1">Encantade de conocerte, Meti, ¡gracias por acompañarme!</button>
+                <button id="btnMascota2">¡Jojo! Ahora somos dos peleles juntos, tú eres otra marioneta, ¿verdad?</button>
+            </div>
+            <div style="margin: 1rem 0;">
+                <video width="100%" controls autoplay muted>
+                    <source src="videoarte1presentacionmeti.mp4" type="video/mp4">
+                    Tu navegador no soporta video.
+                </video>
+            </div>
+            <div class="botonera"><button class="btn-continuar" data-next="slide4">Continuar</button></div>
+        </div>
+
+        <!-- SLIDE 4: ARRASTRAR Y REDIMENSIONAR PNG sobre fondo fijo -->
+        <div id="slide4" class="slide">
+            <div class="texto-principal">“Para poder moveros por el mundo necesitáis un disfraz, ¿cómo si no la gente va a interactuar con vosotres con normalidad?”</div>
+            <div class="zona-interactiva" id="zonaInteractiva4">
+                <div class="fija">
+                    <img src="visteametifoto.jpg" alt="fondo disfraz">
+                </div>
+                <div class="draggables-area" id="draggableArea4">
+                    <!-- los PNG se insertarán aquí mediante JS para poder arrastrarlos/redimensionarlos -->
+                </div>
+            </div>
+            <div class="botonera"><button class="btn-continuar" data-next="slide5">Continuar</button></div>
+        </div>
+
+        <!-- SLIDE 5: CARAS -->
+        <div id="slide5" class="slide">
+            <div class="texto-principal">“Perfecto, ahora ponle guapite, ¿qué rostro tiene? Recuerda mirarle a los ojos.”</div>
+            <div class="zona-interactiva" id="zonaInteractiva5">
+                <div class="fija">
+                    <img src="poncaraameti.jpg" alt="base cara">
+                </div>
+                <div class="draggables-area" id="draggableArea5"></div>
+            </div>
+            <div class="botonera"><button class="btn-continuar" data-next="slide6">Continuar</button></div>
+        </div>
+
+        <!-- SLIDE 6: PASTILLA QUE SE MULTIPLICA -->
+        <div id="slide6" class="slide">
+            <div class="texto-principal">“¡Lo has hecho genial! Sin embargo, ¿no crees que estaréis un poco solos? Haz un nuevo amigo, corre, anticipa una sobredosis…”</div>
+            <div class="zona-interactiva" id="zonaInteractiva6" style="flex-direction: column; align-items: center;">
+                <img id="pastillaBase" src="pastilla.png" style="width: 80px; cursor: pointer; background: #2c2622; padding: 10px; border-radius: 20px;">
+                <div id="areaClones" style="position: relative; min-height: 250px; width: 100%; margin-top: 20px; background: #1f1b18; border-radius: 20px;"></div>
+            </div>
+            <div class="botonera"><button class="btn-continuar" data-next="slide7">Continuar</button></div>
+        </div>
+
+        <!-- SLIDE 7: FINAL, CIERRA MODAL -->
+        <div id="slide7" class="slide">
+            <div class="texto-principal">¡Qué bien lo has hecho! Ahora, si quieres, continúa descubriendo el proyecto TEAtraviesa. Por el momento, ha sido todo un placer.</div>
+            <div class="botonera"><button id="cerrarModalBtn" class="btn-continuar">Continuar</button></div>
+        </div>
+    </div>
+</div>
+
+<!-- CONTENIDO PRINCIPAL (DESPUÉS DEL MODAL) -->
+<div id="contenidoPrincipal" class="contenido-principal">
+    <h1 style="font-size: 2rem;">TEAtraviesa · Obras</h1>
+    <ul class="lista-obras">
+        <li><a href="cepillarse.html" target="_blank">1) Cepillarselosdientesproject</a></li>
+        <li><a href="cleanfisting.html" target="_blank">2) Cleanfisting</a></li>
+        <li><a href="masilla.html" target="_blank">3) +illaserotoninérgica</a></li>
+        <li><a href="ranacepam.html" target="_blank">4) Ranacepam®</a></li>
+    </ul>
+    <hr>
+    <p style="color:#b8aa9a;">Proyecto de web arte · experiencia interactiva</p>
+</div>
+
+<script>
+    // ----------------------------- LOGICA DE SLIDES ---------------------------------
+    let slides = document.querySelectorAll('.slide');
+    let currentSlideIndex = 0;
+
+    function showSlide(index) {
+        slides.forEach((slide, i) => {
+            slide.classList.toggle('active', i === index);
+        });
+        currentSlideIndex = index;
+    }
+
+    // para los botones "Continuar"
+    document.querySelectorAll('.btn-continuar').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            let next = btn.getAttribute('data-next');
+            if (next) {
+                let nextId = document.getElementById(next);
+                if (nextId) {
+                    let idx = Array.from(slides).indexOf(nextId);
+                    if (idx !== -1) showSlide(idx);
+                }
+            }
+        });
+    });
+
+    // Lógica slide1: texto2 aparece tras 5 segundos
+    const texto2Div = document.getElementById('textoSlide1_2');
+    setTimeout(() => {
+        texto2Div.style.display = 'flex';
+    }, 5000);
+
+    document.getElementById('btnSi').addEventListener('click', () => { showSlide(1); }); // slide2
+    document.getElementById('btnNo').addEventListener('click', () => { showSlide(2); }); // slide3
+
+    // Slide2: texto pequeño aparece a los 3 segundos
+    setTimeout(() => {
+        let pequeno = document.getElementById('textoSlide2_peq');
+        if (pequeno) pequeno.style.opacity = '1';
+    }, 3000);
+
+    // Slide3: botones que desaparecen al hacer click
+    const btnM1 = document.getElementById('btnMascota1');
+    const btnM2 = document.getElementById('btnMascota2');
+    if(btnM1) btnM1.addEventListener('click', (e) => { e.target.style.display = 'none'; });
+    if(btnM2) btnM2.addEventListener('click', (e) => { e.target.style.display = 'none'; });
+
+    // ----------------------------- INTERACTIVIDAD ARRASTRAR / REDIMENSIONAR (SLIDES 4 y 5) ----------
+    const elementosDisponibles4 = [
+        { src: 'delantalvisteameti.png', nombre: 'delantal' },
+        { src: 'gorrovisteameti.png', nombre: 'gorro' },
+        { src: 'monovisteameti.png', nombre: 'mono' },
+        { src: 'vestidovisteameti.png', nombre: 'vestido' }
+    ];
+    const elementosDisponibles5 = [
+        { src: 'divinecara.png', nombre: 'divine' },
+        { src: 'foucaultcara.png', nombre: 'foucault' },
+        { src: 'didihubermancara.png', nombre: 'didihuberman' },
+        { src: 'madonnacara.png', nombre: 'madonna' }
+    ];
+
+    function crearElementoArrastrable(src, areaId, x = 50, y = 50, width = 100) {
+        const area = document.getElementById(areaId);
+        const div = document.createElement('div');
+        div.className = 'draggable-item';
+        div.style.left = x + 'px';
+        div.style.top = y + 'px';
+        div.style.width = width + 'px';
+        const img = document.createElement('img');
+        img.src = src;
+        div.appendChild(img);
+        area.appendChild(div);
+        
+        interact(div).draggable({
+            listeners: { move (event) {
+                const target = event.target;
+                const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+                target.style.transform = `translate(${x}px, ${y}px)`;
+                target.setAttribute('data-x', x);
+                target.setAttribute('data-y', y);
+            }}
+        }).resizable({
+            edges: { left: true, right: true, bottom: true, top: true },
+            listeners: { move (event) {
+                let { x, y, width, height } = event.rect;
+                event.target.style.width = `${width}px`;
+                event.target.style.height = `${height}px`;
+                event.target.style.transform = `translate(${x}px, ${y}px)`;
+                event.target.setAttribute('data-x', x);
+                event.target.setAttribute('data-y', y);
+            }}
+        });
+        return div;
+    }
+
+    function poblarArea(areaId, listaElementos) {
+        const area = document.getElementById(areaId);
+        if (!area) return;
+        area.innerHTML = '';
+        let offsetX = 20;
+        listaElementos.forEach((el, idx) => {
+            let x = 20 + (idx * 110);
+            let y = 20;
+            let ancho = 90;
+            const div = crearElementoArrastrable(el.src, areaId, x, y, ancho);
+            // se añade manualmente sin duplicar evento
+        });
+    }
+
+    // Para slide4
+    if(document.getElementById('draggableArea4')) {
+        poblarArea('draggableArea4', elementosDisponibles4);
+    }
+    if(document.getElementById('draggableArea5')) {
+        poblarArea('draggableArea5', elementosDisponibles5);
+    }
+
+    // ----------------------------- SLIDE6: CLONAR PASTILLAS INFINITAS ------------------
+    const areaClones = document.getElementById('areaClones');
+    let cloneCount = 0;
+
+    function crearPastillaClonable(x, y) {
+        const clone = document.createElement('img');
+        clone.src = 'pastilla.png';
+        clone.className = 'pastilla-clon';
+        clone.style.left = x + 'px';
+        clone.style.top = y + 'px';
+        clone.style.width = '70px';
+        clone.style.position = 'absolute';
+        areaClones.appendChild(clone);
+        
+        interact(clone).draggable({
+            listeners: { move (event) {
+                let target = event.target;
+                let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+                target.style.transform = `translate(${x}px, ${y}px)`;
+                target.setAttribute('data-x', x);
+                target.setAttribute('data-y', y);
+            }}
+        }).resizable({
+            edges: { left: true, right: true, bottom: true, top: true },
+            listeners: { move (event) {
+                let { width, height, x, y } = event.rect;
+                event.target.style.width = `${width}px`;
+                event.target.style.height = `${height}px`;
+                event.target.style.transform = `translate(${x}px, ${y}px)`;
+                event.target.setAttribute('data-x', x);
+                event.target.setAttribute('data-y', y);
+            }}
+        });
+        return clone;
+    }
+
+    const pastillaBase = document.getElementById('pastillaBase');
+    if(pastillaBase) {
+        pastillaBase.addEventListener('click', (e) => {
+            let randX = Math.random() * (areaClones.clientWidth - 100);
+            let randY = Math.random() * (areaClones.clientHeight - 100);
+            if(randX<0) randX=20;
+            if(randY<0) randY=20;
+            crearPastillaClonable(randX, randY);
+        });
+    }
+
+    // Cerrar modal y mostrar contenido principal
+    const btnCerrarModal = document.getElementById('cerrarModalBtn');
+    const modal = document.getElementById('modalInicial');
+    const contenido = document.getElementById('contenidoPrincipal');
+    if(btnCerrarModal){
+        btnCerrarModal.addEventListener('click', () => {
+            modal.style.display = 'none';
+            contenido.classList.add('visible');
+        });
+    }
+
+    // Ajuste extra para evitar que el modal se pueda cerrar por escape o click fuera (no se puede)
+    window.addEventListener('keydown', function(e) {
+        if(e.key === 'Escape' && modal.style.display !== 'none') {
+            e.preventDefault();
+        }
+    });
+    modal.addEventListener('click', function(e) {
+        if(e.target === modal) e.preventDefault(); // no se cierra
+    });
+</script>
+</body>
+</html>
